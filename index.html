@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chinese Reading Assistant</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <div class="container">
+    <h1>Chinese Reading Assistant</h1>
+
+    <div class="input-area">
+      <h2>Input Text</h2>
+      <div class="file-upload">
+        <label for="file-upload">Upload Chinese Text Document:</label>
+        <input type="file" id="file-upload" accept=".txt,.doc,.docx">
+        <p>or</p>
+      </div>
+      <textarea id="chinese-text" placeholder="Paste Chinese text here..."></textarea>
+      <button id="process-btn">Process Text</button>
+    </div>
+
+    <div class="output-area" id="output-area">
+      <h2>Reading Assistant</h2>
+      <div class="controls">
+        <label>
+          <input type="checkbox" id="toggle-pinyin" checked> Show Pinyin on Hover
+        </label>
+        <label>
+          <input type="checkbox" id="toggle-translation"> Show Translation on Hover
+        </label>
+        <label>
+          <input type="checkbox" id="highlight-chengyu" checked> Highlight Chengyu
+        </label>
+      </div>
+      <div id="reading-content" class="reading-content"></div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/main.js"></script>
+</body>
+
+</html>

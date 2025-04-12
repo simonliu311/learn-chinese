@@ -1,0 +1,18 @@
+{
+  "name": "chinese-reading-assistant",
+  "version": "0.1.0",
+  "description": "A web app to help Chinese learners improve reading skills",
+  "main": "server/app.js",
+  "scripts": {
+    "start": "node server/app.js",
+    "dev": "nodemon server/app.js"
+  },
+  "dependencies": {
+    "axios": "^0.27.2",
+    "body-parser": "^1.20.0",
+    "express": "^4.18.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.19"
+  }
+}
