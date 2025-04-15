@@ -38,6 +38,7 @@ async function processText(text) {
 */
 function mockProcessTextResponse(text) {
   // Split text into paragraphs
+  // NOTE - update to split text into sentences
   const paragraphs = text.split(/\n+/).filter(p => p.trim().length > 0);
 
   // Sample chengyu list for demo purposes
@@ -108,6 +109,41 @@ function mockProcessTextResponse(text) {
 }
 
 /**
+ * Process Chinese text to add pinyin, translation, and identify chengyu
+ * @param {string} text - Chinese text to process
+ * @returns {Object} - Processed data
+ */
+async function processChineseText(text) {
+  // Split text into paragraphs
+  const paragraphs = text.split(/\n+/).filter(p => p.trim().length > 0);
+
+  // Process each paragraph
+  const processedParagraphs = await Promise.all(paragraphs.map(async (paragraph) => {
+    // Process the entire paragraph with pinyin
+    const segments = await processTextWithPinyin(paragraph);
+
+    // Enhance segments with translations and chengyu identification
+    for (let i = 0; i < segments.length; i++) {
+      // Get translation using an API or dictionary
+      segments[i].translation = await getTranslation(segments[i].text);
+
+      // Check if this is part of a chengyu
+      segments[i].isChengyu = await checkIfChengyu(paragraph, i);
+    }
+
+    return {
+      text: paragraph,
+      segments
+    };
+  }));
+
+  return {
+    original: text,
+    paragraphs: processedParagraphs
+  };
+}
+
+/**
 * Get mock pinyin for demonstration purposes
 * @param {string} char - Chinese character
 * @returns {string} - Pinyin representation
@@ -138,6 +174,82 @@ function getMockPinyin(char) {
   };
 
   return mockPinyinMap[char] || 'pinyin';
+}
+
+/**
+ * Get pinyin from API library
+ * @param {string} char - Chinese character
+ * @returns {string} - Pinyin representation
+ */
+async function getPinyin(text) {
+  try {
+    const pinyinResult = pinyin(text, {
+      style: pinyin.STYLE_TONE,
+      heteronym: true,
+      segment: true
+    });
+    return pinyinResult.map(pronunciation => pronunciation[0].join(' '));
+  }
+  catch (error) {
+    console.error("Error getting pinyin:", error)
+    return 'error'
+  }
+};
+
+/**
+ * Get pinyin for multiple characters or words in bulk
+ * @param {string} text - Chinese text containing multiple characters
+ * @returns {Promise<Array<string>>} - Array of pinyin for each character
+ */
+async function getPinyinArray(text) {
+  try {
+    const pinyinResult = pinyin(text, {
+      style: pinyin.STYLE_TONE,
+      heteronym: false,
+      segment: true
+    });
+
+    // Return the array of pinyin results
+    return pinyinResult.map(pronunciation => pronunciation[0]);
+  } catch (error) {
+    console.error('Error getting pinyin array:', error);
+    return text.split('').map(() => 'error');
+  }
+}
+
+/**
+ * Process Chinese text with proper word segmentation and pinyin
+ * @param {string} paragraph - Paragraph of Chinese text
+ * @returns {Promise<Array>} - Array of processed segments with pinyin
+ */
+async function processTextWithPinyin(paragraph) {
+  try {
+    // For a more advanced implementation, you could use a Chinese word segmentation
+    // library like nodejieba here to split the paragraph into words first
+
+    // For now, we'll process character by character
+    const characters = paragraph.split('');
+
+    // Get pinyin for all characters at once (more efficient)
+    const pinyinArray = await getPinyinArray(paragraph);
+
+    // Create segments with their corresponding pinyin
+    const segments = characters.map((char, index) => {
+      return {
+        text: char,
+        pinyin: pinyinArray[index],
+        // Other properties would be added here
+      };
+    });
+
+    return segments;
+  } catch (error) {
+    console.error('Error processing text with pinyin:', error);
+    return paragraph.split('').map(char => ({
+      text: char,
+      pinyin: 'error'
+    }));
+  }
 }
 
 /**
